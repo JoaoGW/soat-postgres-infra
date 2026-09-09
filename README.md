@@ -33,6 +33,9 @@ são aleatórias e apenas o `DATABASE_URL` com `sslmode=require` é gravado no
 Key Vault. O papel de aplicação de menor privilégio será criado pela migration
 privada da Fase 5.
 
+As decisões de rede, logs de auditoria e gestão do segredo estão detalhadas em
+[docs/seguranca.md](docs/seguranca.md).
+
 ## Pré-requisitos
 
 - Foundation do `soat-aks-infra` aplicada com sucesso e state remoto acessível;
@@ -72,7 +75,7 @@ for stack in environments/hml environments/prod; do
   terraform -chdir="$stack" validate
 done
 tflint --recursive
-trivy config --severity CRITICAL .
+trivy config --exit-code 1 --ignorefile .trivyignore .
 ```
 
 Este repositório não possui Dockerfile: entrega infraestrutura como código,
