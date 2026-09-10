@@ -1,0 +1,4 @@
+# O segredo DATABASE_URL acompanha a credencial administrativa aleatória criada
+# pelo Terraform. Uma expiração fixa sem mecanismo de rotação invalidaria a
+# aplicação; rotação de credenciais será introduzida com o papel da aplicação.
+AVD-AZU-0017

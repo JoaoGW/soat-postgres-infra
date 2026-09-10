@@ -1,5 +1,5 @@
 # Homologação
 
-Os arquivos Terraform de homologação serão adicionados na Fase 3. Este
-diretório documenta a separação de ambientes desde o scaffold inicial.
-
+Cria o Flexible Server privado de homologação, o banco `oficina_hml` e grava o
+segredo `database-url-hml` no Key Vault compartilhado. Usa `hml.tfstate` no
+container de state PostgreSQL e só aplica após a trava de custo ser habilitada.
