@@ -36,6 +36,10 @@ privada da Fase 5.
 As decisões de rede, logs de auditoria e gestão do segredo estão detalhadas em
 [docs/seguranca.md](docs/seguranca.md).
 
+O servidor HML está ativo, privado e é consumido pela Function e API HML. A
+topologia produtiva permanece interna e sem endpoint público; os segredos são
+referenciados pelo Key Vault, nunca registrados neste repositório.
+
 ## Pré-requisitos
 
 - Foundation do `soat-aks-infra` aplicada com sucesso e state remoto acessível;
@@ -79,4 +83,6 @@ trivy config --exit-code 1 --ignorefile .trivyignore .
 ```
 
 Este repositório não possui Dockerfile: entrega infraestrutura como código,
-não uma aplicação executável.
+não uma aplicação executável. Swagger e Postman não se aplicam a Terraform;
+consulte o [Swagger HML](http://20.226.244.207/docs) e a
+[coleção central](https://github.com/JoaoGW/soat-api/blob/main/docs/postman/oficina-api.postman_collection.json).
