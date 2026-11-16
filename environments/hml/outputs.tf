@@ -13,3 +13,7 @@ output "server_fqdn" {
 output "database_name" {
   value = module.postgresql.database_name
 }
+
+output "service_database_names" {
+  value = { for service, database in module.service_databases : service => database.database_name }
+}

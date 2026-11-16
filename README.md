@@ -9,8 +9,8 @@ outputs da foundation do repositório `soat-aks-infra`.
 ```mermaid
 flowchart LR
   GH[GitHub Actions com OIDC] --> PG[PostgreSQL Flexible Server]
-  PG --> DBHML[oficina_hml]
-  PG --> DBPROD[oficina_prod]
+  PG --> DBHML[oficina_hml / os_saga_hml / billing_hml]
+  PG --> DBPROD[oficina_prod / os_saga_prod / billing_prod]
   PG --> DNS[DNS privado]
   PG --> KV[Azure Key Vault]
   AKS[AKS compartilhado] --> DNS
@@ -22,10 +22,27 @@ público. Consulte o [diagrama central](https://github.com/JoaoGW/soat-api/tree/
 
 ## Ambientes
 
-- `environments/hml`: Flexible Server PostgreSQL 16, banco `oficina_hml` e
-  administrador `soat_hml_admin`.
-- `environments/prod`: Flexible Server PostgreSQL 16, banco `oficina_prod` e
-  administrador `soat_prod_admin`.
+- `environments/hml`: Flexible Server PostgreSQL 16, bancos `oficina_hml`,
+  `os_saga_hml` e `billing_hml`, administrador `soat_hml_admin`.
+- `environments/prod`: Flexible Server PostgreSQL 16, bancos `oficina_prod`,
+  `os_saga_prod` e `billing_prod`, administrador `soat_prod_admin`.
+
+### Banco por microsserviço (Fase 4)
+
+O módulo `modules/database` cria um banco por serviço relacional no mesmo
+servidor gerenciado:
+
+| Serviço | Banco | Conteúdo |
+| --- | --- | --- |
+| OS Service (`soat-api`) | `oficina_<env>` | Clientes, veículos e OS legadas |
+| OS Service (`soat-api`) | `os_saga_<env>` | OS da Fase 4, histórico, Saga, inbox/outbox |
+| Billing Service | `billing_<env>` | Orçamentos, cobranças, pagamentos, inbox/outbox |
+
+O Execution Service usa Cosmos DB (NoSQL), provisionado no próprio
+repositório. Cada serviço recebe somente o `DATABASE_URL` do seu banco por
+Secret próprio; nenhum serviço conhece a string de conexão de outro. Os deploys
+continuam atrás da trava de custo (`TF_APPLY_ENABLED`): sem ela o workflow não
+tenta login no Azure.
 
 Os servidores usam SKU `B_Standard_B1ms`, 32 GB, backup por sete dias, TLS
 obrigatório, sem rede pública, geo-backup ou alta disponibilidade. As senhas
