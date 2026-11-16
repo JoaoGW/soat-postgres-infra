@@ -23,3 +23,31 @@ module "postgresql" {
   database_name       = "oficina_prod"
   sku_name            = var.postgresql_sku_name
 }
+
+# Fase 4: cada microsserviço relacional tem um banco próprio no servidor
+# gerenciado. O OS mantém o banco legado e o banco da Saga; o Billing tem o seu.
+# O Execution usa Cosmos DB (repositório soat-execution-service).
+module "service_databases" {
+  for_each = {
+    os_saga = "os_saga_prod"
+    billing = "billing_prod"
+  }
+
+  source        = "../../modules/database"
+  server_id     = module.postgresql.server_id
+  database_name = each.value
+}
+
+# URL de cada banco no Key Vault, lida pelo SecretProviderClass do serviço dono
+# (`saga-database-url-<env>` no OS e `billing-database-url-<env>` no Billing).
+resource "azurerm_key_vault_secret" "service_database_url" {
+  for_each = {
+    os_saga = "saga-database-url-prod"
+    billing = "billing-database-url-prod"
+  }
+
+  name         = each.value
+  value        = "${module.postgresql.connection_prefix}/${module.service_databases[each.key].database_name}?sslmode=require"
+  key_vault_id = data.terraform_remote_state.foundation.outputs.key_vault_id
+  content_type = "application/vnd.soat.database-url"
+}
